@@ -39,7 +39,7 @@
     <script type="text/javascript">
     /* $(document).ready (function () {
 
-                                                                                                                                                                                        });*/
+                                                                                                                                                                                                                                                                                                                                                    });*/
 
     var game = new Phaser.Game(800, 600, Phaser.AUTO, '#mainScreen', {
         preload: preload,
@@ -47,7 +47,7 @@
         update: update
     });
 
-    var player, playerBullets, playerShield, stars;
+    var player, playerBullets, playerShield, stars, gun, fireButton, newCursor;
     console.log(game);
 
     function preload() {
@@ -90,7 +90,7 @@
             var xLoc = Math.floor(Math.random() * 790);
             var yLoc = Math.floor(Math.random() * 590);
             playerBullets.create(xLoc, yLoc, 'playerBullet');
-        };
+        }
         //Enable physics for the playerBullets group
         game.physics.arcade.enable(playerBullets);
         //Iterates over each member of the playerBullets group and stops them from leaving map.  Also adds bounce and sets center for rotation
@@ -104,9 +104,15 @@
             playerBullet.body.velocity.x = (Math.floor(Math.random() * 200) - 100);
             playerBullet.body.velocity.y = (Math.floor(Math.random() * 200) - 100);
         });
-
         //loads the player into the map
         spawnPlayer();
+        // adding weapon and a firebutton and having its movements track player
+        gun = game.add.weapon(1, 'playerBullet');
+        // gun.bulletSpeed(400);
+        gun.fireRate = 30;
+        gun.trackSprite(player, 14, 0);
+        newCursor = this.input.keyboard.createCursorKeys();
+        fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     }
 
     function update() {
@@ -183,6 +189,9 @@
             player.animations.play('walk');
             playerShield.animations.play('swing');
             player.angle = 0;
+            gun.fireAngle = Phaser.ANGLE_UP;
+            gun.trackSprite(player, 15, -19);
+
             /*       playerShield.angle = 0;*/
         } else if (keyS.isDown || cursors.down.isDown) {
             //DOWN
@@ -190,6 +199,9 @@
             player.animations.play('walk');
             playerShield.animations.play('swing');
             player.angle = 180;
+            gun.fireAngle = Phaser.ANGLE_DOWN;
+            gun.trackSprite(player, -15, 19);
+
             /*  playerShield.angle = 180;*/
         } else if (keyA.isDown || cursors.left.isDown) {
             //LEFT
@@ -197,6 +209,8 @@
             player.animations.play('walk');
             playerShield.animations.play('swing');
             player.angle = -90;
+            gun.fireAngle = Phaser.ANGLE_LEFT;
+            gun.trackSprite(player, -19, -15);
             /*  playerShield.angle = -90;*/
         } else if (keyD.isDown || cursors.right.isDown) {
             //RIGHT
@@ -204,6 +218,9 @@
             player.animations.play('walk');
             playerShield.animations.play('swing');
             player.angle = 90;
+            gun.fireAngle = Phaser.ANGLE_RIGHT;
+            gun.trackSprite(player, 19, 15);
+
             /*   playerShield.angle = 90;*/
         } else {
             //Stand still
@@ -211,24 +228,25 @@
             player.animations.stop();
             playerShield.animations.stop();
             /*  player.frame = 4;*/
-        };
+        }
 
 
         //Checks to see if the spacebar is down
-        if (keySPACE.isDown) {
+        if (fireButton.isDown) {
+            gun.fire();
             console.log("Space Key is Down");
-        };
+        }
 
         if (mouse.isDown) {
             console.log("Mouse X: " + mouse.x + " Y: " + mouse.y);
         }
-    };
+    }
 
 
     function killPlayer() {
         player.kill();
         setTimeout(respawnPlayer, 5000);
-    };
+    }
 
     function spawnPlayer() {
         /*Create player and its settings*/
@@ -258,7 +276,7 @@
     };
 
     function deflectBullet() {
-        console.log ("deflected");
+        console.log("deflected");
     };
     </script>
 </body>
