@@ -39,7 +39,7 @@
     <script type="text/javascript">
     /* $(document).ready (function () {
 
-                                                                                                                                            });*/
+                                                                                                                                                                                        });*/
 
     var game = new Phaser.Game(800, 600, Phaser.AUTO, '#mainScreen', {
         preload: preload,
@@ -47,7 +47,7 @@
         update: update
     });
 
-    var player, playerBullets, stars;
+    var player, playerBullets, playerShield, stars;
     console.log(game);
 
     function preload() {
@@ -56,7 +56,11 @@
         game.load.image('star', 'assets/star.png');
         game.load.image('playerBullet', 'assets/playerBullet.png');
         game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
-        game.load.image('shield', 'assets/shield.png');
+        game.load.spritesheet('shield_blue', 'assets/shield_blue.png', 32, 10);
+        game.load.spritesheet('prisoner_blue', 'assets/prisoner_blue.png', 40, 40);
+        game.load.spritesheet('prisoner_red', 'assets/prisoner_red.png', 40, 40);
+        game.load.spritesheet('prisoner_green', 'assets/prisoner_green.png', 40, 40);
+        game.load.spritesheet('prisoner_yellow', 'assets/prisoner_yellow.png', 40, 40);
 
     }
 
@@ -77,6 +81,7 @@
         //Iterates over each member of the stars group and stops them from leaving map.
         stars.forEachAlive(function(star) {
             star.body.collideWorldBounds = true;
+            star.body.immovable = true;
         });
 
         //Creates a group called playerBullets and randomly adds 10 of them to the map
@@ -88,7 +93,7 @@
         };
         //Enable physics for the playerBullets group
         game.physics.arcade.enable(playerBullets);
-        //Iterates over each member of the stars group and stops them from leaving map.
+        //Iterates over each member of the playerBullets group and stops them from leaving map.  Also adds bounce and sets center for rotation
         playerBullets.forEachAlive(function(playerBullet) {
             playerBullet.body.collideWorldBounds = true;
             playerBullet.body.bounce.x = 1;
@@ -102,8 +107,6 @@
 
         //loads the player into the map
         spawnPlayer();
-
-
     }
 
     function update() {
@@ -112,12 +115,14 @@
             playerBullet.angle += 10;
         });
 
-
         //Create a collision event - player vs stars
         var starStruck = game.physics.arcade.collide(player, stars);
-
+        var shieldStruck = game.physics.arcade.collide(playerShield, playerBullets);
         //Collision detection for weapons fire
+        //vs player
         game.physics.arcade.overlap(player, playerBullets, killPlayer, null, this);
+        //vs shield
+        game.physics.arcade.overlap(playerShield, playerBullets, deflectBullet, null, this);
 
         /*Entity Movement*/
         //Iterates over the stars group and moves them randomly, making them buzz like angry wasps
@@ -150,49 +155,61 @@
             //UP LEFT
             player.body.velocity.x = -150;
             player.body.velocity.y = -150;
-            player.animations.play('left');
+            player.animations.play('walk');
+            playerShield.animations.play('swing');
         } else if (keyW.isDown && keyD.isDown || cursors.up.isDown && cursors.right.isDown) {
             //UP RIGHT
             player.body.velocity.x = 150;
             player.body.velocity.y = -150;
-            player.animations.play('right');
+            player.animations.play('walk');
+            playerShield.animations.play('swing');
         } else if (keyS.isDown && keyA.isDown || cursors.down.isDown && cursors.left.isDown) {
             //DOWN LEFT
             player.body.velocity.x = -150;
             player.body.velocity.y = 150;
-            player.animations.play('left');
+            player.animations.play('walk');
+            playerShield.animations.play('swing');
         } else if (keyS.isDown && keyD.isDown || cursors.down.isDown && cursors.right.isDown) {
             //DOWN RIGHT
             player.body.velocity.x = 150;
             player.body.velocity.y = 150;
-            player.animations.play('right');
+            player.animations.play('walk');
+            playerShield.animations.play('swing');
         } else if (keyW.isDown || cursors.up.isDown) {
             //UP
 
-            /*        game.physics.arcade.accelerationFromRotation(*/
+            /*game.physics.arcade.accelerationFromRotation(*/
             player.body.velocity.y = -150;
-            player.frame = 4;
-     /*       playerShield.angle = 0;*/
+            player.animations.play('walk');
+            playerShield.animations.play('swing');
+            player.angle = 0;
+            /*       playerShield.angle = 0;*/
         } else if (keyS.isDown || cursors.down.isDown) {
             //DOWN
             player.body.velocity.y = 150;
-            player.frame = 4;
-          /*  playerShield.angle = 180;*/
+            player.animations.play('walk');
+            playerShield.animations.play('swing');
+            player.angle = 180;
+            /*  playerShield.angle = 180;*/
         } else if (keyA.isDown || cursors.left.isDown) {
             //LEFT
             player.body.velocity.x = -150;
-            player.animations.play('left');
-          /*  playerShield.angle = -90;*/
+            player.animations.play('walk');
+            playerShield.animations.play('swing');
+            player.angle = -90;
+            /*  playerShield.angle = -90;*/
         } else if (keyD.isDown || cursors.right.isDown) {
             //RIGHT
             player.body.velocity.x = 150;
-            player.animations.play('right');
-         /*   playerShield.angle = 90;*/
+            player.animations.play('walk');
+            playerShield.animations.play('swing');
+            player.angle = 90;
+            /*   playerShield.angle = 90;*/
         } else {
             //Stand still
 
             player.animations.stop();
-
+            playerShield.animations.stop();
             /*  player.frame = 4;*/
         };
 
@@ -215,29 +232,34 @@
 
     function spawnPlayer() {
         /*Create player and its settings*/
-        player = game.add.sprite(400, 300, 'dude');
+        player = game.add.sprite(400, 300, 'prisoner_blue');
         //Enable physics on the player
         game.physics.arcade.enable(player);
         //Stop player and stars from leaving map.
         player.body.collideWorldBounds = true;
-        //Our two animations, walking left and right.
-        player.animations.add('left', [0, 1, 2, 3], 10, true);
-        player.animations.add('right', [5, 6, 7, 8], 10, true);
+        //Make the player walk
+        player.animations.add('walk', [0, 1, 2, 3], 10, true);
+        //Set the center of the head as the rotation axis
         player.anchor.setTo(0.5, 0.5);
         console.log(player);
-      /*  playerShield = game.add.sprite(player.x + 16, player.y + 24, 'shield');*/
-        /*   player.addChild(playerShield);*/
-        /* playerShield.x += 50;*/
-        /*
-                game.physics.arcade.enable(playerShield);*/
-        /*playerShield.immovable = true;*/
-       /* playerShield.anchor.setTo(0.5, 0.5);*/
+        //Create the player's shield, add animation for walking and make the shield a child of the player
+        playerShield = game.add.sprite(-30, -25, 'shield_blue');
+        game.physics.arcade.enable(playerShield);
+        playerShield.body.moves = false;
+        playerShield.animations.add('swing', [0, 1, 2, 3], 10, true);
+
+        player.addChild(playerShield);
+
     };
 
     function respawnPlayer() {
         player.revive();
         player.x = 400, player.y = 300;
-    }
+    };
+
+    function deflectBullet() {
+        console.log ("deflected");
+    };
     </script>
 </body>
 
