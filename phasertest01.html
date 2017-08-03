@@ -39,7 +39,7 @@
     <script type="text/javascript">
     /* $(document).ready (function () {
 
-                                                                                                                                                                                                                                                                                                                                                                                                                    });*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                });*/
 
     var game = new Phaser.Game(800, 600, Phaser.AUTO, '#mainScreen', {
         preload: preload,
@@ -47,7 +47,7 @@
         update: update
     });
 
-    var player, playerBullets, playerShield, playerGun, stars, gun, fireButton, newCursor;
+    var player, playerBullets, playerShield, playerGun, stars, gun, fireButton, newCursor, gameBall;
     console.log(game);
 
     function preload() {
@@ -62,7 +62,7 @@
         game.load.spritesheet('prisoner_red', 'assets/prisoner_red.png', 40, 40);
         game.load.spritesheet('prisoner_green', 'assets/prisoner_green.png', 40, 40);
         game.load.spritesheet('prisoner_yellow', 'assets/prisoner_yellow.png', 40, 40);
-
+        game.load.spritesheet('game-ball', 'assets/ball.png');
     }
 
 
@@ -72,11 +72,12 @@
 
         //Adds a group called stars and then randomly adds 10 stars scattered over the map
         stars = game.add.group();
-        for (i = 0; i < 10; i++) {
+        for (i = 0; i < 5; i++) {
             var xLoc = Math.floor(Math.random() * 790);
             var yLoc = Math.floor(Math.random() * 590);
             stars.create(xLoc, yLoc, 'star');
         };
+
         //Enable physics for the stars group
         game.physics.arcade.enable(stars);
         //Iterates over each member of the stars group and stops them from leaving map.
@@ -107,8 +108,9 @@
         });
         //loads the player into the map
         spawnPlayer();
+        // spawn ball onto map
+        spawnBall();
         // adding weapon and a firebutton and having its movements track player
-
         gun = game.add.weapon(1, 'playerBullet');
         gun.addBulletAnimation('bulletSpin', [0, 1], 10, true);
         // gun.bulletSpeed(400);
@@ -127,14 +129,19 @@
         //Create a collision event - player vs stars
         var starStruck = game.physics.arcade.collide(player, stars);
         var shieldStruck = game.physics.arcade.collide(playerShield, playerBullets);
-
+        // collision event for player and ball
+        var ballTouch = game.physics.arcade.collide(player, gameBall);
         //Collision detection for weapons fire
         //vs player
         game.physics.arcade.collide(player, playerBullets, killPlayer, null, this);
         game.physics.arcade.collide(playerShield, playerBullets, deflectBullet, null, this);
         //vs shield
         /* */
-
+        // collison detection b/t player and ball
+        if (ballTouch === true) {
+            gameBall.kill();
+            ballCarrier();
+        }
         /*Entity Movement*/
         //Iterates over the stars group and moves them randomly, making them buzz like angry wasps
         stars.forEachAlive(function(star) {
@@ -288,21 +295,44 @@
         playerGun.animations.add('swingGun', [0, 1, 2, 3], 10, true);
         playerGun.animations.add('fireGun', [0, 1, 2], 15, false);
         player.addChild(playerGun);
-    };
+    }
 
     function respawnPlayer() {
         player.revive();
         player.x = 400, player.y = 300;
-    };
+    }
 
     function killPlayer() {
         player.kill();
         setTimeout(respawnPlayer, 5000);
     }
 
+    function spawnBall() {
+        var xLoc = Math.floor(Math.random() * 790);
+        var yLoc = Math.floor(Math.random() * 590);
+        gameBall = game.add.sprite(xLoc, yLoc, 'game-ball');
+        game.physics.arcade.enable(gameBall);
+        gameBall.body.isCircle = true;
+        gameBall.body.immovable = true;
+        gameBall.body.setCircle(20, 0, 0);
+    }
+
+    function ballCarrier() {
+        // add an image to the original image series.It should be one with the ball on its back maybe as an index
+        // change the players current image to one with the ball
+        // player.frame = '1 or 2 or 3 or wherever that image index is'
+        // make character tougher
+        // collison with player and goal
+        // an identifier for the game to recognize if player has ball, could ask if player is using the ball image fram
+        // if player.frame === 3 or whatever goal, update points
+        // if player dies, respawn ball change image back to original
+        // change armor/life back to normal
+        console.log("you are the ball carrier");
+    }
+
     function deflectBullet() {
         console.log("Deflected by shield");
-    };
+    }
 
     /*function deflectBullet(playerShield, playerBullets) {
         playerBullets.velocity.x = playerBullets.velocity.x * -1;
