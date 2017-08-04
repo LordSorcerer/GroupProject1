@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Firewall Penitentiary</title>
+    <link href="https://fonts.googleapis.com/css?family=Orbitron:700" rel="stylesheet">
     <script type="text/javascript" src="js/phaser.min.js"></script>
     <style type="text/css">
     body {
@@ -39,7 +40,7 @@
     <script type="text/javascript">
     /* $(document).ready (function () {
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                });*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            });*/
 
     var game = new Phaser.Game(800, 600, Phaser.AUTO, '#mainScreen', {
         preload: preload,
@@ -47,7 +48,8 @@
         update: update
     });
 
-    var player, playerBullets, playerShield, playerGun, stars, gun, fireButton, newCursor, gameBall;
+    var player, playerBullets, playerShield, playerGun, stars, gun, fireButton, newCursor, gameBall, uplGoal, uprGoal, btmrGoal, btmlGoal, goalArr, text;
+    var hasBall = false;
     console.log(game);
 
     function preload() {
@@ -63,20 +65,47 @@
         game.load.spritesheet('prisoner_green', 'assets/prisoner_green.png', 40, 40);
         game.load.spritesheet('prisoner_yellow', 'assets/prisoner_yellow.png', 40, 40);
         game.load.spritesheet('game-ball', 'assets/ball.png');
+        game.load.spritesheet('upper-left-goal', 'assets/ulg.png');
+        game.load.spritesheet('upper-right-goal', 'assets/urg.png');
+        game.load.spritesheet('bottom-right-goal', 'assets/dnrg.png');
+        game.load.spritesheet('bottom-left-goal', 'assets/dnlg.png');
+
     }
 
 
     function create() {
         /*Create map & terrain features*/
         game.add.sprite(0, 0, 'map01');
+        // all the goals looping through and add hitboxes and physics
+        uplGoal = game.add.sprite(0, 0, 'upper-left-goal');
+        uprGoal = game.add.sprite(700, 0, 'upper-right-goal');
+        btmrGoal = game.add.sprite(700, 500, 'bottom-right-goal');
+        btmlGoal = game.add.sprite(0, 500, 'bottom-left-goal');
+        goalArr = [uplGoal, uprGoal, btmlGoal, btmrGoal];
+        for (var i = 0; i < goalArr.length; i++) {
+            game.physics.arcade.enable(goalArr[i]);
+            goalArr[i].body.immovable = true;
+            goalArr[i].body.isCircle = true;
+        }
+        // positions of hitboxes
+        uplGoal.body.setCircle(64, -27, -27);
+        uprGoal.body.setCircle(64, 0, -29);
+        btmlGoal.body.setCircle(64, -27, 0);
+        btmrGoal.body.setCircle(64, 0, 0);
+
+
+        // Goal Text
+        text = game.add.text(game.world.centerX, game.world.centerY, "GOOAALLLL!!!!", { font: "65px Orbitron", fill: "#777", align: "center" });
+        text.anchor.setTo(0.5, 0.5);
+        text.visible = false;
 
         //Adds a group called stars and then randomly adds 10 stars scattered over the map
         stars = game.add.group();
-        for (i = 0; i < 5; i++) {
+        for (i = 0; i < 2; i++) {
             var xLoc = Math.floor(Math.random() * 790);
             var yLoc = Math.floor(Math.random() * 590);
             stars.create(xLoc, yLoc, 'star');
-        };
+        }
 
         //Enable physics for the stars group
         game.physics.arcade.enable(stars);
@@ -88,7 +117,7 @@
 
         //Creates a group called playerBullets and randomly adds 10 of them to the map
         playerBullets = game.add.group();
-        for (i = 0; i < 10; i++) {
+        for (i = 0; i < 2; i++) {
             var xLoc = Math.floor(Math.random() * 790);
             var yLoc = Math.floor(Math.random() * 590);
             playerBullets.create(xLoc, yLoc, 'playerBullet');
@@ -111,16 +140,18 @@
         // spawn ball onto map
         spawnBall();
         // adding weapon and a firebutton and having its movements track player
-        gun = game.add.weapon(1, 'playerBullet');
+        gun = game.add.weapon(3, 'playerBullet');
         gun.addBulletAnimation('bulletSpin', [0, 1], 10, true);
         // gun.bulletSpeed(400);
-        gun.fireRate = 30;
+        gun.fireRate = 500;
         gun.trackSprite(player, 14, 0);
         newCursor = this.input.keyboard.createCursorKeys();
         fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     }
 
     function update() {
+        console.log('X:' + this.input.activePointer.x);
+        console.log('Y:' + this.input.activePointer.y);
         //spin bullets
         playerBullets.forEachAlive(function(playerBullet) {
             playerBullet.angle += 10;
@@ -137,6 +168,11 @@
         game.physics.arcade.collide(playerShield, playerBullets, deflectBullet, null, this);
         //vs shield
         /* */
+        // vs goal
+        game.physics.arcade.overlap(player, uplGoal, scoredGoal, null, this);
+        game.physics.arcade.overlap(player, uprGoal, scoredGoal, null, this);
+        game.physics.arcade.overlap(player, btmlGoal, scoredGoal, null, this);
+        game.physics.arcade.overlap(player, btmrGoal, scoredGoal, null, this);
         // collison detection b/t player and ball
         if (ballTouch === true) {
             gameBall.kill();
@@ -168,8 +204,12 @@
         game.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]);
 
         /*Movement event handlers. Note: If you don't account for diagonals first, cardinals will override and only move you in one direction, not two.*/
-        /* game.debug.body(playerShield);
-         game.debug.body(player);*/
+        // game.debug.body(playerShield); // game.debug.body(player); // game.debug.body(gameBall);
+        // game.debug.body(uplGoal);
+        // game.debug.body(uprGoal);
+        // game.debug.body(btmrGoal);
+        // game.debug.body(btmlGoal);
+
         if (keyW.isDown && keyA.isDown || cursors.up.isDown && cursors.left.isDown) {
             //UP LEFT
             player.body.velocity.x = -150;
@@ -276,7 +316,7 @@
         //
         /*player.body.setSize(30, 30, 5, 0);*/
         player.body.isCircle = true;
-        player.body.setCircle(15, 5, 5);
+        player.body.setCircle(13, 6, 6);
         //Stop player and stars from leaving map.
         player.body.collideWorldBounds = true;
         //Make the player walk
@@ -302,19 +342,43 @@
         player.x = 400, player.y = 300;
     }
 
+    function restartPlay() {
+        text.visible = false;
+        respawnPlayer();
+        spawnBall();
+        hasBall = false;
+    }
+
+    function scoredGoal() {
+        if (hasBall === true) {
+            text.visible = true;
+            gameBall.destroy();
+            player.kill();
+            setTimeout(restartPlay, 5000);
+            console.log("Goal!");
+        } else {
+            console.log("no goal!");
+        }
+    }
+
     function killPlayer() {
         player.kill();
+        if (hasBall === true) {
+            gameBall.destroy();
+            spawnBall();
+            hasBall = false;
+        }
         setTimeout(respawnPlayer, 5000);
     }
 
     function spawnBall() {
-        var xLoc = Math.floor(Math.random() * 790);
-        var yLoc = Math.floor(Math.random() * 590);
+        var xLoc = Math.floor(Math.random() * 790 - 17);
+        var yLoc = Math.floor(Math.random() * 590 - 17);
         gameBall = game.add.sprite(xLoc, yLoc, 'game-ball');
         game.physics.arcade.enable(gameBall);
         gameBall.body.isCircle = true;
         gameBall.body.immovable = true;
-        gameBall.body.setCircle(20, 0, 0);
+        gameBall.body.setCircle(17, 2, 0);
     }
 
     function ballCarrier() {
@@ -326,7 +390,10 @@
         // an identifier for the game to recognize if player has ball, could ask if player is using the ball image fram
         // if player.frame === 3 or whatever goal, update points
         // if player dies, respawn ball change image back to original
-        // change armor/life back to normal
+        // change armor/life back to 
+        gameBall = game.add.sprite(-18, 7, 'game-ball');
+        player.addChild(gameBall);
+        hasBall = true;
         console.log("you are the ball carrier");
     }
 
