@@ -47,8 +47,12 @@
         update: update
     });
 
+    var music = new Audio('assets/audio/Urban-Jungle-2061_Looping.mp3');
+    var explosion = new Audio('assets/audio/explosion.mp3');
+
     var player, playerBullets, playerShield, playerGun, stars, gun, fireButton, newCursor;
     console.log(game);
+
 
     function preload() {
 
@@ -62,13 +66,19 @@
         game.load.spritesheet('prisoner_red', 'assets/prisoner_red.png', 40, 40);
         game.load.spritesheet('prisoner_green', 'assets/prisoner_green.png', 40, 40);
         game.load.spritesheet('prisoner_yellow', 'assets/prisoner_yellow.png', 40, 40);
+        // game.load.audio('background-music', ['assets/audio/Urban-Jungle-2061_Looping'])
+
 
     }
 
 
     function create() {
+
+        music.play();
+
         /*Create map & terrain features*/
         game.add.sprite(0, 0, 'map01');
+
 
         //Adds a group called stars and then randomly adds 10 stars scattered over the map
         stars = game.add.group();
@@ -251,6 +261,7 @@
         //Checks to see if the spacebar is down
         if (fireButton.isDown) {
             gun.fire();
+            explosion.play();
         }
 
         if (mouse.isDown) {
@@ -303,6 +314,8 @@
     function deflectBullet() {
         console.log("Deflected by shield");
     };
+
+
 
     /*function deflectBullet(playerShield, playerBullets) {
         playerBullets.velocity.x = playerBullets.velocity.x * -1;
