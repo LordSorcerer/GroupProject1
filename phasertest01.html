@@ -514,7 +514,7 @@
     //Networking Stuff
     $(document).ready(function() {
         //Establish network connection
-        socket = io('http://172.20.5.190:5000');
+        socket = io();
 
         //When you log on and have no ID, get one
         if (myPlayerUpdate.playerID === null) {
