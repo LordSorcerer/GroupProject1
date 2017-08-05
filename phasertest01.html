@@ -4,87 +4,60 @@
 <head>
     <meta charset="UTF-8" />
     <title>Firewall Penitentiary</title>
-    <!-- <link rel="stylesheet" type="text/css" href="assets/css/reset.css">
-    <link rel="stylesheet" type="text/css" href="assets/css/style.css"> -->
+     <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="426407190775-dobeu0h5j83ene8f282oe27k5lqc2ioh.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <link rel="stylesheet" type="text/css" href="assets/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
     <script type="text/javascript" src="js/phaser.min.js"></script>
-    <style type="text/css">
-    body {
-        background-color: darkblue;
-        /*float: left;*/
-        /*box-sizing: border-box;*/
-    }
-    /* This is the element to modify to style the game window */
-
-    canvas {
-        border: lightblue 2px solid;
-        margin: 10px;
-    }
-
-    #mainScreen {
-        width: 800px;
-        height: 600px;
-        float: left;
-        box-sizing: border-box;
-    }
-
-    #sideBar {
-        float: left;
-        width: 160px;
-        box-sizing: border-box;
-        clear: both;
-
-    }
-
-    #logo {
-        font-family: helvetica, arial, "New Rail Alphabet", "Galaxie Polaris"; 
-        background-color: red;
-
-    }
-
-    #redScore {
-        width: 100px;
-        background-color: red;
-    }
-
-    #chatWindow {
-        background-color: lightblue;
-        width: 800;
-        height: 100px;
-        clear: both;
-    }
-    </style>
+    <!-- client secret: WVEXhsO3rvOa5XhgJS0gyV0J -->
 </head>
 
 <body>
+
+<script>function onSignIn(googleUser) {
+    console.log(googleUser);
+        // Useful data for your client-side scripts:
+        var profile = googleUser.getBasicProfile();
+        console.log("ID: " + profile.getId()); // Don't send this directly to your server!
+        console.log('Full Name: ' + profile.getName());
+        console.log('Given Name: ' + profile.getGivenName());
+        console.log('Family Name: ' + profile.getFamilyName());
+        console.log("Image URL: " + profile.getImageUrl());
+        console.log("Email: " + profile.getEmail());
+
+        // The ID token you need to pass to your backend:
+        var id_token = googleUser.getAuthResponse().id_token;
+        console.log("ID Token: " + id_token);
+    };
+
+    </script>
+<div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
     <div></div>
     <div id="#mainScreen">
     </div>
-    <div id="#logo">
-    <h1>Firewall Penitentiary</h1>
+    <div id="sideBar">
+        <div id="logo">
+            <h1>Firewall Penitentiary</h1>
+        </div>
+        <div id="redScore">
+            <p>100</p>
+        </div>
+        <div id="yellowScore">
+            <p>0</p>
+        </div>
+        <div id="blueScore">
+            <p>500</p>
+        </div>
+        <div id="greenScore">
+            <p>85</p>
+        </div>
     </div>
-    <div id="#sideBar">
-    <!-- <div id="#logo">
-    <h1>Firewall Penitentiary</h1>
-    </div> -->
-    <div id="#redScore">
-    <p>100</p>
-    </div>
-    <div id="#yellowScore">
-    <p>0</p>
-    </div>
-    <div id="#blueScore">
-    <p>500</p>
-    </div>
-    <div id="#greenScore">
-    <p>85</p>
-    </div>
-    </div>
-
     <div id="#chatWindow"></div>
     <script type="text/javascript">
     /* $(document).ready (function () {
 
-                                                                                                                                                                                                                                                                                                                                                                                                                    });*/
+                                                                                                                                                                                                                                                                                                                                                                                                                        });*/
 
     var game = new Phaser.Game(800, 600, Phaser.AUTO, '#mainScreen', {
         preload: preload,
@@ -93,6 +66,7 @@
     });
 
     var music = new Audio('assets/audio/Urban-Jungle-2061_Looping.mp3');
+    music.loop = true;
     var explosion = new Audio('assets/audio/explosion.mp3');
 
     var player, playerBullets, playerShield, playerGun, stars, gun, fireButton, newCursor;

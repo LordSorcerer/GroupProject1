@@ -1,23 +1,75 @@
 body {
-        background-color: darkblue;
-        float: left;
-        box-sizing: border-box;
-        color: green;
-    }
-    /* This is the element to modify to style the game window */
+    background-color: darkblue;
+    float: left;
+    box-sizing: border-box;
+    font-family: helvetica, arial, "New Rail Alphabet", "Galaxie Polaris"; 
+    /*color: green;*/
+}
+/* This is the element to modify to style the game window */
 
-    canvas {
-        border: lightblue 2px solid;
-        margin: 10px;
-    }
+canvas {
+    border: lightblue 2px solid;
+    margin: 10px;
+}
+/* This is the element to modify to style the game window */
 
-    #mainScreen {
-        width: 800px;
-        height: 600px;
-    }
+#mainScreen {
+    width: 800px;
+    height: 600px;
+    float: left;
+    box-sizing: border-box;
+}
 
-    #chatWindow {
-        background-color: lightblue;
-        width: 800;
-        height: 100px;
-    }
+#sideBar {
+    float: left;
+    width: 300px;
+    box-sizing: border-box;
+    font-size: 60px;
+    background-color: silver;
+    align-items: center;
+}
+
+#logo {
+
+    width: 160px;
+    font-size: 36px;
+    text-align: center;
+    
+    /*background-color: red;*/
+
+}
+
+#redScore {
+    width: 150px;
+    background-color: red;
+    margin: 10px;
+    padding: 10px;
+}
+
+#yellowScore {
+    width: 150px;
+    background-color: yellow;
+    margin: 10px;
+    padding: 10px;
+}
+
+#blueScore {
+    width: 150px;
+    background-color: blue;
+    margin: 10px;
+    padding: 10px;
+}
+
+#greenScore {
+    width: 150px;
+    background-color: green;
+    margin: 10px;
+    padding: 10px;
+}
+
+#chatWindow {
+    background-color: lightblue;
+    width: 800;
+    height: 100px;
+    clear: both;
+}
