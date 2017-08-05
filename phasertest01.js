@@ -22,7 +22,7 @@ io.on('connection', function(socket) {
         console.log("Player #" + numPlayers + " has joined.");
     };
     socket.on('chat', function(chatMessage) {
-    	io.emit('chat', message);
+    	io.emit('chat', chatMessage);
     });
 
     socket.on('updatePlayer', function(update) {

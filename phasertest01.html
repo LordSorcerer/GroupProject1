@@ -35,14 +35,13 @@
 
 <body>
     <div></div>
-    <div id="#mainScreen">
+    <div id="mainScreen">
     </div>
-    <ul id="#chatWindow"></ul>
+    <ul id="chatWindow"></ul>
     <form>
-        <input id='message' type = text length=80>
+        <input id='message' type=t ext length=80>
         <button id='sendChat'>Send</button>
     </form>
-
     <script type="text/javascript">
     ////////
 
@@ -53,7 +52,7 @@
         playerBullets, playerShield, playerGun, pillars, gun, fireButton, newCursor, playerBlue, playerRed, playerYellow, playerGreen;
 
 
-    var game = new Phaser.Game(800, 600, Phaser.AUTO, '#mainScreen', {
+    var game = new Phaser.Game(800, 600, Phaser.AUTO, 'mainScreen', {
         preload: preload,
         create: create,
         update: update,
@@ -64,15 +63,15 @@
     //Network functionality
     var socket;
     var myPlayerUpdate = {
-        playerID: null,
-        fire: 0,
-        move: 0,
-    }, 
+            playerID: null,
+            fire: 0,
+            move: 0,
+        },
 
-    chatMessage = {
-        sender: "",
-        message: ""
-    }
+        chatMessage = {
+            sender: "",
+            message: ""
+        }
 
     console.log(game);
 
@@ -507,7 +506,7 @@
         socket.on('chat', function(newMessage) {
             name = newMessage.sender;
             message = newMessage.message;
-            $("#chatWindow").append("<li>" + name +": " + newMessage.message + "</li>");
+            $("#chatWindow").append("<li>Player #" + name + ": " + newMessage.message + "</li>");
         });
 
         //Did we receive an 'update' message from the server?
@@ -523,6 +522,7 @@
             event.preventDefault();
             chatMessage.sender = myPlayerUpdate.playerID;
             chatMessage.message = $("#message").val().trim();
+            $("#message").val("");
             socket.emit('chat', chatMessage);
         })
     });
