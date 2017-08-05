@@ -40,7 +40,7 @@
     <script type="text/javascript">
     /* $(document).ready (function () {
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            });*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    });*/
 
     var game = new Phaser.Game(800, 600, Phaser.AUTO, '#mainScreen', {
         preload: preload,
@@ -48,14 +48,17 @@
         update: update
     });
 
-    var player, playerBullets, playerShield, playerGun, stars, gun, fireButton, newCursor, gameBall, uplGoal, uprGoal, btmrGoal, btmlGoal, goalArr, text;
+    var player, playerBullets, playerShield, playerGun, stars, gun, fireButton, newCursor, gameBall, uplGoal, uprGoal, btmrGoal, btmlGoal, goalArr, text, playerScoreDisplay, pillars;
     var hasBall = false;
+    var scoreTracker = 0;
+    var ballXLoc = randomIntFromInterval(100, 700) - 17;
+    var ballYLoc = randomIntFromInterval(100, 500) - 17;
     console.log(game);
 
     function preload() {
 
-        game.load.image('map01', 'assets/map01small.jpg');
-        game.load.image('star', 'assets/star.png');
+        // game.load.image('map01', 'assets/map01small.jpg');
+        game.load.image('map02', 'assets/map02.png');
         game.load.spritesheet('playerBullet', 'assets/playerBullet.png', 10, 10);
         game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
         game.load.spritesheet('shield_blue', 'assets/shield_blue.png', 32, 10);
@@ -65,22 +68,27 @@
         game.load.spritesheet('prisoner_green', 'assets/prisoner_green.png', 40, 40);
         game.load.spritesheet('prisoner_yellow', 'assets/prisoner_yellow.png', 40, 40);
         game.load.spritesheet('game-ball', 'assets/ball.png');
-        game.load.spritesheet('upper-left-goal', 'assets/ulg.png');
-        game.load.spritesheet('upper-right-goal', 'assets/urg.png');
-        game.load.spritesheet('bottom-right-goal', 'assets/dnrg.png');
-        game.load.spritesheet('bottom-left-goal', 'assets/dnlg.png');
+        game.load.spritesheet('goal', 'assets/goal.png', 100, 100);
+        game.load.image('pillar', './assets/pillar.png');
 
     }
 
 
     function create() {
         /*Create map & terrain features*/
-        game.add.sprite(0, 0, 'map01');
+        game.add.sprite(0, 0, 'map02');
         // all the goals looping through and add hitboxes and physics
-        uplGoal = game.add.sprite(0, 0, 'upper-left-goal');
-        uprGoal = game.add.sprite(700, 0, 'upper-right-goal');
-        btmrGoal = game.add.sprite(700, 500, 'bottom-right-goal');
-        btmlGoal = game.add.sprite(0, 500, 'bottom-left-goal');
+        uplGoal = game.add.sprite(50, 50, 'goal');
+        uplGoal.angle = 90;
+        uplGoal.anchor.setTo(0.5, 0.5);
+        uprGoal = game.add.sprite(750, 50, 'goal');
+        uprGoal.angle = 180;
+        uprGoal.anchor.setTo(0.5, 0.5);
+        btmrGoal = game.add.sprite(750, 550, 'goal');
+        btmrGoal.angle = -90;
+        btmrGoal.anchor.setTo(0.5, 0.5);
+        btmlGoal = game.add.sprite(50, 550, 'goal');
+        btmlGoal.anchor.setTo(0.5, 0.5);
         goalArr = [uplGoal, uprGoal, btmlGoal, btmrGoal];
         for (var i = 0; i < goalArr.length; i++) {
             game.physics.arcade.enable(goalArr[i]);
@@ -93,31 +101,31 @@
         btmlGoal.body.setCircle(64, -27, 0);
         btmrGoal.body.setCircle(64, 0, 0);
 
+        //Adds a group called pillars and then adds one in front of each player's base
+        pillars = game.add.group();
+        pillars.create(175, 275, 'pillar');
+        pillars.create(575, 275, 'pillar');
+        pillars.create(375, 125, 'pillar');
+        pillars.create(375, 425, 'pillar');
+        //Enable physics for the pillars group
+        game.physics.arcade.enable(pillars);
+        //Iterates over each member of the pillars group and stops them from leaving map.
+        pillars.forEachAlive(function(pillar) {
+            pillar.body.collideWorldBounds = true;
+            pillar.body.immovable = true;
+        });
 
         // Goal Text
-        text = game.add.text(game.world.centerX, game.world.centerY, "GOOAALLLL!!!!", { font: "65px Orbitron", fill: "#777", align: "center" });
+        text = game.add.text(game.world.centerX, game.world.centerY, "Packet Delivered...\naka..GOOAALLLL!!!!", { font: "55px Orbitron", fill: "#bbb", align: "center" });
         text.anchor.setTo(0.5, 0.5);
         text.visible = false;
-
-        //Adds a group called stars and then randomly adds 10 stars scattered over the map
-        stars = game.add.group();
-        for (i = 0; i < 2; i++) {
-            var xLoc = Math.floor(Math.random() * 790);
-            var yLoc = Math.floor(Math.random() * 590);
-            stars.create(xLoc, yLoc, 'star');
-        }
-
-        //Enable physics for the stars group
-        game.physics.arcade.enable(stars);
+        playerScoreDisplay = game.add.text(387, 576, scoreTracker, { font: "45px Orbitron", fill: "#bbb" });
+        playerScoreDisplay.anchor.setTo(0.5, 0.5);
         //Iterates over each member of the stars group and stops them from leaving map.
-        stars.forEachAlive(function(star) {
-            star.body.collideWorldBounds = true;
-            star.body.immovable = true;
-        });
 
         //Creates a group called playerBullets and randomly adds 10 of them to the map
         playerBullets = game.add.group();
-        for (i = 0; i < 2; i++) {
+        for (i = 0; i < 18; i++) {
             var xLoc = Math.floor(Math.random() * 790);
             var yLoc = Math.floor(Math.random() * 590);
             playerBullets.create(xLoc, yLoc, 'playerBullet');
@@ -138,7 +146,7 @@
         //loads the player into the map
         spawnPlayer();
         // spawn ball onto map
-        spawnBall();
+        highlightGoal();
         // adding weapon and a firebutton and having its movements track player
         gun = game.add.weapon(3, 'playerBullet');
         gun.addBulletAnimation('bulletSpin', [0, 1], 10, true);
@@ -156,10 +164,20 @@
         playerBullets.forEachAlive(function(playerBullet) {
             playerBullet.angle += 10;
         });
+        gun.bullets.forEachAlive(function(playerBullet) {
+            playerBullet.angle += 10;
+            playerBullet.body.bounce.x = 1;
+            playerBullet.body.bounce.y = 1;
+            playerBullet.body.collideWorldBounds = true;
+        });
 
         //Create a collision event - player vs stars
         var starStruck = game.physics.arcade.collide(player, stars);
         var shieldStruck = game.physics.arcade.collide(playerShield, playerBullets);
+        // pillar collisions
+        var pillarStruck = game.physics.arcade.collide(player, pillars);
+        var pillarShot = game.physics.arcade.collide(playerBullets, pillars);
+        var pillarShot2 = game.physics.arcade.collide(gun.bullets, pillars);
         // collision event for player and ball
         var ballTouch = game.physics.arcade.collide(player, gameBall);
         //Collision detection for weapons fire
@@ -178,12 +196,6 @@
             gameBall.kill();
             ballCarrier();
         }
-        /*Entity Movement*/
-        //Iterates over the stars group and moves them randomly, making them buzz like angry wasps
-        stars.forEachAlive(function(star) {
-            star.body.velocity.x = (Math.floor(Math.random() * 250) - 125);
-            star.body.velocity.y = (Math.floor(Math.random() * 250) - 125);
-        });
 
         //  Reset the players velocity, x and y, so they stop when not pressing movement keys
         player.body.velocity.x = 0;
@@ -197,6 +209,7 @@
             keyS = game.input.keyboard.addKey(Phaser.Keyboard.S),
             keyW = game.input.keyboard.addKey(Phaser.Keyboard.W),
             keyD = game.input.keyboard.addKey(Phaser.Keyboard.D),
+            keyShift = game.input.keyboard.addKey(16),
             //Register mouse for aiming and firing
             mouse = game.input.mousePointer;
 
@@ -240,27 +253,28 @@
             playerGun.animations.play('swingGun');
         } else if (keyW.isDown || cursors.up.isDown) {
             //UP
-
-            /*game.physics.arcade.accelerationFromRotation(*/
             player.body.velocity.y = -150;
             player.animations.play('walk');
             playerShield.animations.play('swingShield');
             playerGun.animations.play('swingGun');
-            player.angle = 0;
-            gun.fireAngle = Phaser.ANGLE_UP;
-            gun.trackSprite(player, 15, -19);
-            playerShield.body.setSize(32, 15, 0, 0);
-            /*       playerShield.angle = 0;*/
+            if (!keyShift.isDown) {
+                player.angle = 0;
+                gun.fireAngle = Phaser.ANGLE_UP;
+                gun.trackSprite(player, 15, -19);
+                playerShield.body.setSize(32, 15, 0, 0);
+            }
         } else if (keyS.isDown || cursors.down.isDown) {
             //DOWN
             player.body.velocity.y = 150;
             player.animations.play('walk');
             playerShield.animations.play('swingShield');
             playerGun.animations.play('swingGun');
-            player.angle = 180;
-            gun.fireAngle = Phaser.ANGLE_DOWN;
-            gun.trackSprite(player, -15, 19);
-            playerShield.body.setSize(32, 15, -32, -15);
+            if (!keyShift.isDown) {
+                player.angle = 180;
+                gun.fireAngle = Phaser.ANGLE_DOWN;
+                gun.trackSprite(player, -15, 19);
+                playerShield.body.setSize(32, 15, -32, -15);
+            }
             /*  playerShield.angle = 180;*/
         } else if (keyA.isDown || cursors.left.isDown) {
             //LEFT
@@ -268,10 +282,12 @@
             player.animations.play('walk');
             playerShield.animations.play('swingShield');
             playerGun.animations.play('swingGun');
-            player.angle = -90;
-            gun.fireAngle = Phaser.ANGLE_LEFT;
-            gun.trackSprite(player, -19, -15);
-            playerShield.body.setSize(15, 32, 0, -32);
+            if (!keyShift.isDown) {
+                player.angle = -90;
+                gun.fireAngle = Phaser.ANGLE_LEFT;
+                gun.trackSprite(player, -19, -15);
+                playerShield.body.setSize(15, 32, 0, -32);
+            }
             /*  playerShield.angle = -90;*/
         } else if (keyD.isDown || cursors.right.isDown) {
             //RIGHT
@@ -279,10 +295,12 @@
             player.animations.play('walk');
             playerShield.animations.play('swingShield');
             playerGun.animations.play('swingGun');
-            player.angle = 90;
-            gun.fireAngle = Phaser.ANGLE_RIGHT;
-            gun.trackSprite(player, 19, 15);
-            playerShield.body.setSize(15, 32, -15, 0);
+            if (!keyShift.isDown) {
+                player.angle = 90;
+                gun.fireAngle = Phaser.ANGLE_RIGHT;
+                gun.trackSprite(player, 19, 15);
+                playerShield.body.setSize(15, 32, -15, 0);
+            }
 
             /*   playerShield.angle = 90;*/
         } else {
@@ -310,7 +328,7 @@
 
     function spawnPlayer() {
         /*Create player and its settings*/
-        player = game.add.sprite(400, 300, 'prisoner_blue');
+        player = game.add.sprite(387, 576, 'prisoner_blue');
         //Enable physics on the player
         game.physics.arcade.enable(player);
         //
@@ -337,6 +355,11 @@
         player.addChild(playerGun);
     }
 
+    function restartWholeGame() {
+        player.kill();
+        gameBall.destroy();
+    }
+
     function respawnPlayer() {
         player.revive();
         player.x = 400, player.y = 300;
@@ -344,18 +367,23 @@
 
     function restartPlay() {
         text.visible = false;
-        respawnPlayer();
-        spawnBall();
+        highlightGoal();
         hasBall = false;
     }
 
-    function scoredGoal() {
-        if (hasBall === true) {
+    function scoredGoal(player, goal) {
+        if (hasBall === true && goal.frame === 1) {
             text.visible = true;
             gameBall.destroy();
-            player.kill();
+            // player.kill();
+            scoreTracker++;
+            playerScoreDisplay.setText(scoreTracker);
+            btmlGoal.frame = 0;
+            btmrGoal.frame = 0;
+            uplGoal.frame = 0;
+            uprGoal.frame = 0;
             setTimeout(restartPlay, 5000);
-            console.log("Goal!");
+            // console.log("Goal!");
         } else {
             console.log("no goal!");
         }
@@ -363,33 +391,43 @@
 
     function killPlayer() {
         player.kill();
+        playerShield.kill();
         if (hasBall === true) {
             gameBall.destroy();
-            spawnBall();
             hasBall = false;
+            spawnBall();
         }
         setTimeout(respawnPlayer, 5000);
     }
 
     function spawnBall() {
-        var xLoc = Math.floor(Math.random() * 790 - 17);
-        var yLoc = Math.floor(Math.random() * 590 - 17);
-        gameBall = game.add.sprite(xLoc, yLoc, 'game-ball');
+        gameBall = game.add.sprite(ballXLoc, ballYLoc, 'game-ball');
         game.physics.arcade.enable(gameBall);
         gameBall.body.isCircle = true;
         gameBall.body.immovable = true;
         gameBall.body.setCircle(17, 2, 0);
     }
 
+    function highlightGoal() {
+        spawnBall();
+        if (ballXLoc < 400) {
+            if (ballYLoc < 300) {
+                btmrGoal.frame = 1;
+            } else {
+                uprGoal.frame = 1;
+            }
+        } else {
+            if (ballYLoc < 300) {
+                btmlGoal.frame = 1;
+            } else {
+                uplGoal.frame = 1;
+
+            }
+        }
+    }
+
     function ballCarrier() {
-        // add an image to the original image series.It should be one with the ball on its back maybe as an index
-        // change the players current image to one with the ball
-        // player.frame = '1 or 2 or 3 or wherever that image index is'
         // make character tougher
-        // collison with player and goal
-        // an identifier for the game to recognize if player has ball, could ask if player is using the ball image fram
-        // if player.frame === 3 or whatever goal, update points
-        // if player dies, respawn ball change image back to original
         // change armor/life back to 
         gameBall = game.add.sprite(-18, 7, 'game-ball');
         player.addChild(gameBall);
@@ -400,6 +438,11 @@
     function deflectBullet() {
         console.log("Deflected by shield");
     }
+
+    function randomIntFromInterval(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
 
     /*function deflectBullet(playerShield, playerBullets) {
         playerBullets.velocity.x = playerBullets.velocity.x * -1;
