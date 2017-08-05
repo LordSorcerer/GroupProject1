@@ -1,0 +1,52 @@
+body {
+  background-color: #020115;
+  margin-bottom: 30px;
+}
+
+.header {
+  font-family: 'Audiowide', cursive;
+  color: #0282ff;
+  text-align: center;
+}
+
+canvas {
+  display: inline-block;
+  box-sizing: border-box;
+  border: lightgray 2px solid;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  width: 800px;
+  float: left;
+}
+
+table {
+  font-size: 20px;
+  border: 2px solid #dbdbdb;
+  background-color: black;
+  box-sizing: border-box;
+  width: 300px;
+  float: left;
+  margin-top: 20px;
+  margin-left: 30px;
+  border-collapse: separate;
+  border-spacing: 10px;
+}
+
+th, td {
+  font-family: 'Audiowide', cursive;
+  text-align: center;
+  color: #dbdbdb;
+}
+
+#chatWindow {
+  color: #dbdbdb;
+  border: 2px solid #dbdbdb;
+  background-color: black;
+  box-sizing: border-box;
+  width: 300px;
+  height: 300px;
+  padding: 5px;
+  float: left;
+  margin-top: 30px;
+  margin-left: 30px;
+}
