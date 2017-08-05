@@ -2,7 +2,7 @@ var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-var port = process.env.PORT || 5000;
+var port = process.env.PORT || 3000;
 
 app.use('/assets', express.static(__dirname + '/assets'));
 app.use('/js', express.static(__dirname + '/js'));
