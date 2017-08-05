@@ -258,9 +258,11 @@
             myPlayerUpdate.fire = 0;
         };
 
-        if (mouse.isDown) {
+
+//Non-functional code
+      /*  if (mouse.isDown) {
             console.log("Mouse X: " + mouse.x + " Y: " + mouse.y);
-        };
+        };*/
 
         //Updates the server with the player's new movement and fire requests
         socket.emit('updatePlayer', myPlayerUpdate);
@@ -512,7 +514,7 @@
     //Networking Stuff
     $(document).ready(function() {
         //Establish network connection
-        socket = io('http://172.20.5.190:3000');
+        socket = io();
 
         //When you log on and have no ID, get one
         if (myPlayerUpdate.playerID === null) {
