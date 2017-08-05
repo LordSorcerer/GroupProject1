@@ -1,0 +1,23 @@
+body {
+        background-color: darkblue;
+        float: left;
+        box-sizing: border-box;
+        color: green;
+    }
+    /* This is the element to modify to style the game window */
+
+    canvas {
+        border: lightblue 2px solid;
+        margin: 10px;
+    }
+
+    #mainScreen {
+        width: 800px;
+        height: 600px;
+    }
+
+    #chatWindow {
+        background-color: lightblue;
+        width: 800;
+        height: 100px;
+    }

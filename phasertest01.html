@@ -4,12 +4,14 @@
 <head>
     <meta charset="UTF-8" />
     <title>Firewall Penitentiary</title>
+    <!-- <link rel="stylesheet" type="text/css" href="assets/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css"> -->
     <script type="text/javascript" src="js/phaser.min.js"></script>
     <style type="text/css">
     body {
         background-color: darkblue;
-        float: left;
-        box-sizing: border-box;
+        /*float: left;*/
+        /*box-sizing: border-box;*/
     }
     /* This is the element to modify to style the game window */
 
@@ -21,12 +23,34 @@
     #mainScreen {
         width: 800px;
         height: 600px;
+        float: left;
+        box-sizing: border-box;
+    }
+
+    #sideBar {
+        float: left;
+        width: 160px;
+        box-sizing: border-box;
+        clear: both;
+
+    }
+
+    #logo {
+        font-family: helvetica, arial, "New Rail Alphabet", "Galaxie Polaris"; 
+        background-color: red;
+
+    }
+
+    #redScore {
+        width: 100px;
+        background-color: red;
     }
 
     #chatWindow {
         background-color: lightblue;
         width: 800;
         height: 100px;
+        clear: both;
     }
     </style>
 </head>
@@ -35,6 +59,27 @@
     <div></div>
     <div id="#mainScreen">
     </div>
+    <div id="#logo">
+    <h1>Firewall Penitentiary</h1>
+    </div>
+    <div id="#sideBar">
+    <!-- <div id="#logo">
+    <h1>Firewall Penitentiary</h1>
+    </div> -->
+    <div id="#redScore">
+    <p>100</p>
+    </div>
+    <div id="#yellowScore">
+    <p>0</p>
+    </div>
+    <div id="#blueScore">
+    <p>500</p>
+    </div>
+    <div id="#greenScore">
+    <p>85</p>
+    </div>
+    </div>
+
     <div id="#chatWindow"></div>
     <script type="text/javascript">
     /* $(document).ready (function () {
