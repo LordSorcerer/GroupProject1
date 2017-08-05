@@ -49,7 +49,8 @@
         updatedPlayer,
         playerShields = [],
         playerList = [],
-        playerBullets, playerShield, playerGun, pillars, gun, fireButton, newCursor, playerBlue, playerRed, playerYellow, playerGreen;
+        playerBullets, playerShield, playerGun, pillars, gun, fireButton, strafeButton, cursors, keyA, keyS, keyW, keyD, playerBlue, playerRed, playerYellow, playerGreen;
+
 
 
     var game = new Phaser.Game(800, 600, Phaser.AUTO, 'mainScreen', {
@@ -64,6 +65,7 @@
     var socket;
     var myPlayerUpdate = {
             playerID: null,
+            strafe: 0,
             fire: 0,
             move: 0,
         },
@@ -139,7 +141,7 @@
         emitter = game.add.emitter(0, 0, 100);
         emitter.makeParticles(['deathZero', 'deathOne']);
         emitter.gravity = 0;
-        emitter.maxParticleScale = 1.2;
+        emitter.maxParticleScale = 1.5;
 
         //Create a group for all the players
         players = game.add.group();
@@ -161,9 +163,19 @@
         gun = game.add.weapon(3, 'playerBullet');
         gun.fireRate = 300;
         gun.trackSprite(player, 15, -19);
-        newCursor = this.input.keyboard.createCursorKeys();
-        fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-    }
+
+
+        //Register cursor keys for player movement
+        console.log(Phaser.Keyboard.SHIFT);
+        cursors = game.input.keyboard.createCursorKeys(),
+            //Register the other keys.
+            fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR),
+            strafeButton = game.input.keyboard.addKey(16),
+            keyA = game.input.keyboard.addKey(Phaser.Keyboard.A),
+            keyS = game.input.keyboard.addKey(Phaser.Keyboard.S),
+            keyW = game.input.keyboard.addKey(Phaser.Keyboard.W),
+            keyD = game.input.keyboard.addKey(Phaser.Keyboard.D);
+    };
 
     function update() {
         //spin bullets
@@ -190,16 +202,9 @@
         game.physics.arcade.collide(players, playerBullets, killPlayer, null, this);
         game.physics.arcade.collide(players, gun.bullets, killPlayer, null, this);
 
-        //Register cursor keys for player movement
-        var cursors = game.input.keyboard.createCursorKeys(),
-            //Register the other keys.
-            keySPACE = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR),
-            keyA = game.input.keyboard.addKey(Phaser.Keyboard.A),
-            keyS = game.input.keyboard.addKey(Phaser.Keyboard.S),
-            keyW = game.input.keyboard.addKey(Phaser.Keyboard.W),
-            keyD = game.input.keyboard.addKey(Phaser.Keyboard.D),
-            //Register mouse for aiming and firing
-            mouse = game.input.mousePointer;
+
+        //Register mouse for aiming and firing
+        mouse = game.input.mousePointer;
 
         //Stop the following keys from propagating up to the browser - is this necessary?
         game.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]);
@@ -240,7 +245,11 @@
         } else {
             myPlayerUpdate.move = 0;
         };
-
+        if (strafeButton.isDown) {
+            myPlayerUpdate.strafe = 1;
+        } else {
+            myPlayerUpdate.strafe = 0;
+        };
 
         //Checks to see if the spacebar is down
         if (fireButton.isDown) {
@@ -360,27 +369,28 @@
         currentPlayer = playerList[update.playerID];
         currentPlayer.body.velocity.x = 0;
         currentPlayer.body.velocity.y = 0;
+        strafe = update.strafe;
         switch (update.move) {
             case 1: //north
-                playerMoveN(currentPlayer);
+                playerMoveN(currentPlayer, strafe);
                 break;
             case 2: //Northeast
                 playerMoveNE(currentPlayer);
                 break;
             case 3: //East
-                playerMoveE(currentPlayer);
+                playerMoveE(currentPlayer, strafe);
                 break;
             case 4: //Southeast
                 playerMoveSE(currentPlayer);
                 break;
             case 5: //South
-                playerMoveS(currentPlayer);
+                playerMoveS(currentPlayer, strafe);
                 break;
             case 6: //Southwest
                 playerMoveSW(currentPlayer);
                 break;
             case 7: //West
-                playerMoveW(currentPlayer);
+                playerMoveW(currentPlayer, strafe);
                 break;
             case 8: //Northwest
                 playerMoveNW(currentPlayer);
@@ -394,14 +404,17 @@
 
     };
 
-    function playerMoveN(currentPlayer) {
+    function playerMoveN(currentPlayer, strafe) {
 
         currentPlayer.body.velocity.y = -150;
         currentPlayer.animations.play('walk');
         currentPlayer.children["0"].animations.play('swingShield');
         currentPlayer.children["1"].animations.play('swingGun');
-        currentPlayer.angle = 0;
-        currentPlayer.children["0"].body.setSize(32, 15, 0, -5);
+        if (strafe === 0) {
+            currentPlayer.angle = 0;
+            currentPlayer.children["0"].body.setSize(32, 15, 0, -5);
+        }
+
     }
 
     function playerMoveNE(currentPlayer) {
@@ -410,17 +423,19 @@
         currentPlayer.animations.play('walk');
         currentPlayer.children["0"].animations.play('swingShield');
         currentPlayer.children["1"].animations.play('swingGun');
-    }
+    };
 
-    function playerMoveE(currentPlayer) {
+    function playerMoveE(currentPlayer, strafe) {
 
         currentPlayer.body.velocity.x = 150;
         currentPlayer.animations.play('walk');
         currentPlayer.children["0"].animations.play('swingShield');
         currentPlayer.children["1"].animations.play('swingGun');
-        currentPlayer.angle = 90;
-        currentPlayer.children["0"].body.setSize(15, 32, -15, 0);
-    }
+        if (strafe === 0) {
+            currentPlayer.angle = 90;
+            currentPlayer.children["0"].body.setSize(15, 32, -15, 0);
+        };
+    };
 
     function playerMoveSE(currentPlayer) {
         currentPlayer.body.velocity.x = 150;
@@ -428,16 +443,18 @@
         currentPlayer.animations.play('walk');
         currentPlayer.children["0"].animations.play('swingShield');
         currentPlayer.children["1"].animations.play('swingGun');
-    }
+    };
 
     function playerMoveS(currentPlayer) {
         currentPlayer.body.velocity.y = 150;
         currentPlayer.animations.play('walk');
         currentPlayer.children["0"].animations.play('swingShield');
         currentPlayer.children["1"].animations.play('swingGun');
-        currentPlayer.angle = 180;
-        currentPlayer.children["0"].body.setSize(32, 15, -32, -15);
-    }
+        if (strafe === 0) {
+            currentPlayer.angle = 180;
+            currentPlayer.children["0"].body.setSize(32, 15, -32, -15);
+        };
+    };
 
     function playerMoveSW(currentPlayer) {
         currentPlayer.body.velocity.x = -150;
@@ -445,18 +462,20 @@
         currentPlayer.animations.play('walk');
         currentPlayer.children["0"].animations.play('swingShield');
         currentPlayer.children["1"].animations.play('swingGun');
-    }
+    };
 
     function playerMoveW(currentPlayer) {
         currentPlayer.body.velocity.x = -150;
         currentPlayer.animations.play('walk');
         currentPlayer.children["0"].animations.play('swingShield');
         currentPlayer.children["1"].animations.play('swingGun');
-        currentPlayer.angle = -90;
-        currentPlayer.children["0"].body.setSize(15, 32, 0, -32);
+        if (strafe === 0) {
+            currentPlayer.angle = -90;
+            currentPlayer.children["0"].body.setSize(15, 32, 0, -32);
+        };
 
 
-    }
+    };
 
     function playerMoveNW(currentPlayer) {
         currentPlayer.body.velocity.x = -150;
@@ -493,7 +512,7 @@
     //Networking Stuff
     $(document).ready(function() {
         //Establish network connection
-        socket = io('http://192.168.2.7:3000');
+        socket = io('http://172.20.5.190:3000');
 
         //When you log on and have no ID, get one
         if (myPlayerUpdate.playerID === null) {
