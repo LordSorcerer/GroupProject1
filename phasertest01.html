@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8" />
     <title>Firewall Penitentiary</title>
-     <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-scope" content="profile email">
     <meta name="google-signin-client_id" content="426407190775-dobeu0h5j83ene8f282oe27k5lqc2ioh.apps.googleusercontent.com">
     <script src="https://apis.google.com/js/platform.js" async defer></script>
- <!--    <link rel="stylesheet" type="text/css" href="assets/css/reset.css">
+    <!--    <link rel="stylesheet" type="text/css" href="assets/css/reset.css">
     <link rel="stylesheet" type="text/css" href="assets/css/style.css"> -->
     <script type="text/javascript" src="js/phaser.min.js"></script>
     <!-- client secret: WVEXhsO3rvOa5XhgJS0gyV0J -->
@@ -15,8 +15,19 @@
 
 <body>
 
-<script>function onSignIn(googleUser) {
-    console.log(googleUser);
+<!-- This is an alternative button <button id="signinButton">Sign in with Google</button> -->
+<!-- <script>
+  $('#signinButton').click(function() {
+    // signInCallback defined in step 6.
+    auth2.grantOfflineAccess().then(signInCallback);
+  });
+</script> -->
+
+    <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+    <script>
+    function onSignIn(googleUser) {
+        console.log("branch1");
+        console.log(googleUser);
         // Useful data for your client-side scripts:
         var profile = googleUser.getBasicProfile();
         console.log("ID: " + profile.getId()); // Don't send this directly to your server!
@@ -30,9 +41,7 @@
         var id_token = googleUser.getAuthResponse().id_token;
         console.log("ID Token: " + id_token);
     };
-
     </script>
-<div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
     <div></div>
     <div id="#mainScreen">
     </div>
@@ -54,10 +63,12 @@
         </div>
     </div>
     <div id="#chatWindow"></div>
+
+
     <script type="text/javascript">
     /* $(document).ready (function () {
 
-                                                                                                                                                                                                                                                                                                                                                                                                                        });*/
+                                                                                                                                                                                                                                                                                                                                                                                                                                });*/
 
     var game = new Phaser.Game(800, 600, Phaser.AUTO, '#mainScreen', {
         preload: preload,
