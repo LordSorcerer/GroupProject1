@@ -1,0 +1,18 @@
+body {
+    background-color: #020115;
+    margin-bottom: 30px;
+}
+
+.table-box {
+    display: inline-block;
+    width: 300px;
+}
+
+table {
+    width: 100%;
+}
+
+td,
+th {
+    padding: 10px;
+}
