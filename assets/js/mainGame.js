@@ -1,38 +1,7 @@
-// using ajax getting the space-station url and people in space
-$(document).ready(function($) {
-    function getSpaceData() {
-        var url = "http://api.open-notify.org/iss-now.json"
-        $.ajax({
-            url: url,
-            method: 'GET',
-        }).done(function(response) {
-            // longitude,latitude and currentTime pulled out
-            var spaceStationLat = response.iss_position.latitude;
-            var spaceStationLong = response.iss_position.longitude;
-            var currentTime = response.timestamp;
-            // longitude and latitude being appended to the space-station container
-            $(".space-station").append("<header class='station-header'>The International Space Station Coordinates</header>");
-            $(".space-station").append("<p> At: " + currentTime + " Unix-time</p>");
-            $(".space-station").append("<p>Latitude: " + spaceStationLat + " Longitude: " + spaceStationLong + "</p>");
-        });
-        var url1 = "http://api.open-notify.org/astros.json"
-        $.ajax({
-            url: url1,
-            method: 'GET',
-        }).done(function(response) {
-            var numPeople = response.number;
-            var peopleAndCraftArr = [];
-            // pushing the array of people and their craft into an array
-            for (var i = 0; i < response.people.length; i++) {
-                peopleAndCraftArr.push(response.people[i]);
-            }
-            // appending num people in space and looping through our newly created array and pulling out name and craft
-            $(".name-craft-box header").append("There are currently " + numPeople + " people in space right now");
-            for (var j = 0; j < peopleAndCraftArr.length; j++) {
-                $(".name-craft-box").append("<p class='names-craft'>" + "Name: " + peopleAndCraftArr[j].name + ", Craft: " + peopleAndCraftArr[j].craft + "</p>");
-            }
-        });
-    }
+$(document).ready(function() {
+    $('.buttons').append("<button id='stop-sound'>Stop Music</button>");
+    $('.buttons').append("<button id='play-sound'>Play Music</button>");
+
 });
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'mainScreen', {
     preload: preload,
@@ -40,7 +9,7 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, 'mainScreen', {
     update: update
 });
 
-var player, playerBullets, playerShield, playerGun, stars, gun, fireButton, newCursor, gameBall, uplGoal, uprGoal, btmrGoal, btmlGoal, goalArr, text, playerScoreDisplay, pillars, emitter;
+var player, playerBullets, playerShield, playerGun, stars, gun, fireButton, newCursor, gameBall, uplGoal, uprGoal, btmrGoal, btmlGoal, goalArr, text, playerScoreDisplay, pillars, emitter, endGameMessage;
 var hasBall = false;
 var timerActive = false;
 var scoreTracker = 0;
@@ -48,8 +17,20 @@ var introMusic = new Audio('assets/audio/intro.mp3');
 var deathSound = new Audio('assets/audio/shatter.mp3');
 var ballXLoc = randomIntFromInterval(100, 700) - 17;
 var ballYLoc = randomIntFromInterval(100, 500) - 17;
-
+// plays music and listens for button clicks to either pause or resume music
 introMusic.play();
+$('body').on('click', '#stop-sound', function() {
+    introMusic.pause();
+});
+$('body').on('click', '#play-sound', function() {
+    introMusic.play();
+});
+$('body').on('click', '#restart-game', function() {
+    $(".space-station").empty();
+    $(".name-craft-box").empty();
+    restartWholeGame();
+    this.remove();
+});
 // greets newcomer
 setTimeout(greetingVoice, 4000);
 
@@ -116,6 +97,10 @@ function create() {
     emitter.gravity = 0;
     emitter.maxParticleScale = 1.5;
 
+    // end game text
+    endGameMessage = game.add.text(game.world.centerX, game.world.centerY, "Incredible!\n Informational Reward\n Below!", { font: "65px Orbitron", fill: "blue", align: "center" });
+    endGameMessage.anchor.setTo(0.5, 0.5);
+    endGameMessage.visible = false;
     // Goal Text
     text = game.add.text(game.world.centerX, game.world.centerY, "Packet Delivered...\naka..GOOAALLLL!!!!", { font: "65px Orbitron", fill: "blue", align: "center" });
     text.anchor.setTo(0.5, 0.5);
@@ -341,6 +326,15 @@ function spawnPlayer() {
 }
 
 function restartWholeGame() {
+    scoreTracker = 0;
+    gameBall.destroy();
+    game.paused = false;
+    player.kill();
+    player.revive();
+    player.x = 387, player.y = 576;
+    highlightGoal();
+    endGameMessage.visible = false;
+    playerScoreDisplay.setText(scoreTracker);
 
 }
 
@@ -369,9 +363,13 @@ function scoredGoal(player, goal) {
         uplGoal.frame = 0;
         uprGoal.frame = 0;
         timerActive = true;
-        if (scoreTracker === 3) {
+        if (scoreTracker === 1) {
             responsiveVoice.speak("Well done, scroll down for your informational reward", "UK English Female", { volume: 1 });
             getSpaceData();
+            text.visible = false;
+            endGameMessage.visible = true;
+            game.paused = true;
+            $('.buttons').append("<button id='restart-game'>Restart Game</button>");
         }
         setTimeout(restartPlay, 5000);
     } else {
@@ -437,4 +435,38 @@ function deflectBullet() {
 
 function randomIntFromInterval(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
+}
+// using ajax getting the space-station url and people in space
+function getSpaceData() {
+    var url = "http://api.open-notify.org/iss-now.json"
+    $.ajax({
+        url: url,
+        method: 'GET',
+    }).done(function(response) {
+        // longitude,latitude and currentTime pulled out
+        var spaceStationLat = response.iss_position.latitude;
+        var spaceStationLong = response.iss_position.longitude;
+        var currentTime = response.timestamp;
+        // longitude and latitude being appended to the space-station container
+        $(".space-station").append("<header class='station-header'>The International Space Station Coordinates</header>");
+        $(".space-station").append("<p> At: " + currentTime + " Unix-time</p>");
+        $(".space-station").append("<p>Latitude: " + spaceStationLat + " Longitude: " + spaceStationLong + "</p>");
+    });
+    var url1 = "http://api.open-notify.org/astros.json"
+    $.ajax({
+        url: url1,
+        method: 'GET',
+    }).done(function(response) {
+        var numPeople = response.number;
+        var peopleAndCraftArr = [];
+        // pushing the array of people and their craft into an array
+        for (var i = 0; i < response.people.length; i++) {
+            peopleAndCraftArr.push(response.people[i]);
+        }
+        // appending num people in space and looping through our newly created array and pulling out name and craft
+        $(".name-craft-box header").append("There are currently " + numPeople + " people in space right now");
+        for (var j = 0; j < peopleAndCraftArr.length; j++) {
+            $(".name-craft-box").append("<p class='names-craft'>" + "Name: " + peopleAndCraftArr[j].name + ", Craft: " + peopleAndCraftArr[j].craft + "</p>");
+        }
+    });
 }
