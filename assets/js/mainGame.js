@@ -363,7 +363,7 @@ function scoredGoal(player, goal) {
         uplGoal.frame = 0;
         uprGoal.frame = 0;
         timerActive = true;
-        if (scoreTracker === 1) {
+        if (scoreTracker === 2) {
             responsiveVoice.speak("Well done, scroll down for your informational reward", "UK English Female", { volume: 1 });
             getSpaceData();
             text.visible = false;
