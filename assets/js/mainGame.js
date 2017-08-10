@@ -15,15 +15,17 @@ var timerActive = false;
 var scoreTracker = 0;
 var introMusic = new Audio('assets/audio/intro.mp3');
 var deathSound = new Audio('assets/audio/shatter.mp3');
-var ballXLoc = randomIntFromInterval(100, 700) - 17;
-var ballYLoc = randomIntFromInterval(100, 500) - 17;
+var goalNoise = new Audio('assets/audio/goalBleep.mp3');
+var mainMusic = new Audio('assets/audio/main.mp3')
+var ballXLoc;
+var ballYLoc;
 // plays music and listens for button clicks to either pause or resume music
 introMusic.play();
 $('body').on('click', '#stop-sound', function() {
-    introMusic.pause();
+    mainMusic.pause();
 });
 $('body').on('click', '#play-sound', function() {
-    introMusic.play();
+    mainMusic.play();
 });
 $('body').on('click', '#restart-game', function() {
     $(".space-station").empty();
@@ -33,6 +35,7 @@ $('body').on('click', '#restart-game', function() {
 });
 // greets newcomer
 setTimeout(greetingVoice, 4000);
+setTimeout(startMainMusic, 1000 * 10);
 
 function preload() {
 
@@ -71,6 +74,7 @@ function create() {
         game.physics.arcade.enable(goalArr[i]);
         goalArr[i].body.immovable = true;
         goalArr[i].body.isCircle = true;
+        goalArr[i].animations.add('flash', [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0], 7, false)
     }
     // positions of hitboxes
     uplGoal.body.setCircle(64, -27, -27);
@@ -305,6 +309,7 @@ function spawnPlayer() {
     game.physics.arcade.enable(player);
     player.body.isCircle = true;
     player.body.setCircle(13, 6, 6);
+    player.health = 1;
     //Stop player and stars from leaving map.
     player.body.collideWorldBounds = true;
     //Make the player walk
@@ -339,11 +344,16 @@ function restartWholeGame() {
 }
 
 function respawnPlayer() {
+    player.health = 2;
+    setTimeout(function() {
+        player.health = 1;
+    }, 3000);
     player.revive();
     player.x = 400, player.y = 300;
 }
 
 function restartPlay() {
+    respawnPlayer();
     text.visible = false;
     highlightGoal();
     hasBall = false;
@@ -352,10 +362,13 @@ function restartPlay() {
 
 function scoredGoal(player, goal) {
     // checks if he has the ball and if the frame is on the highlighted one
+    console.log(goal);
     if (hasBall === true && goal.frame === 1) {
-        text.visible = true;
+        player.kill();
         gameBall.destroy();
-        responsiveVoice.speak("Packet Delivered", "UK English Female", { volume: 1 });
+        text.visible = true;
+        goal.animations.play('flash');
+        goalNoise.play();
         scoreTracker++;
         playerScoreDisplay.setText(scoreTracker);
         btmlGoal.frame = 0;
@@ -363,36 +376,44 @@ function scoredGoal(player, goal) {
         uplGoal.frame = 0;
         uprGoal.frame = 0;
         timerActive = true;
-        if (scoreTracker === 2) {
+        // if number of goals scored is equal to the number runs this code else call the restart function in 5 seconds
+        if (scoreTracker === 3) {
             responsiveVoice.speak("Well done, scroll down for your informational reward", "UK English Female", { volume: 1 });
             getSpaceData();
             text.visible = false;
             endGameMessage.visible = true;
             game.paused = true;
             $('.buttons').append("<button id='restart-game'>Restart Game</button>");
+        } else {
+            setTimeout(restartPlay, 5000);
         }
-        setTimeout(restartPlay, 5000);
     } else {
         console.log("no goal!");
     }
 }
 
 function killPlayer() {
-    player.kill();
-    deathSound.play();
-    // playerShield.kill();
-    emitter.x = player.x;
-    emitter.y = player.y;
-    emitter.start(true, 3000, null, 30);
-    if (hasBall === true && timerActive === false) {
-        gameBall.destroy();
-        hasBall = false;
-        spawnBall();
+    // player.kill();
+    player.health -= 1;
+    if (player.health === 0) {
+        player.kill();
+        deathSound.play();
+        // playerShield.kill();
+        emitter.x = player.x;
+        emitter.y = player.y;
+        emitter.start(true, 3000, null, 30);
+        if (hasBall === true && timerActive === false) {
+            gameBall.destroy();
+            hasBall = false;
+            spawnBall();
+        }
+        setTimeout(respawnPlayer, 5000);
     }
-    setTimeout(respawnPlayer, 5000);
 }
 
 function spawnBall() {
+    ballXLoc = randomIntFromInterval(100, 700) - 17;
+    ballYLoc = randomIntFromInterval(100, 500) - 17;
     gameBall = game.add.sprite(ballXLoc, ballYLoc, 'game-ball');
     game.physics.arcade.enable(gameBall);
     gameBall.body.isCircle = true;
@@ -431,6 +452,11 @@ function ballCarrier() {
 
 function deflectBullet() {
     console.log("Deflected by shield");
+}
+
+function startMainMusic() {
+    introMusic.pause();
+    mainMusic.play();
 }
 
 function randomIntFromInterval(min, max) {
