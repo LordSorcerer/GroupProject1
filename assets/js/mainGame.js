@@ -48,7 +48,7 @@ $('body').on('click', '#start-game', function() {
 
     function preload() {
 
-        game.load.image('mapX', 'assets/images/mapX.png', 800, 600);
+        game.load.image('mapX', 'assets/images/map03.png', 800, 600);
         game.load.spritesheet('playerBullet', 'assets/images/playerBullet.png', 10, 10);
         game.load.spritesheet('shield_blue', 'assets/images/shield_blue.png', 32, 10);
         game.load.spritesheet('gun_basic', 'assets/images/gun_basic.png', 8, 15);
@@ -57,8 +57,8 @@ $('body').on('click', '#start-game', function() {
         game.load.spritesheet('prisoner_green', 'assets/images/prisoner_green.png', 40, 40);
         game.load.spritesheet('prisoner_yellow', 'assets/images/prisoner_yellow.png', 40, 40);
         game.load.spritesheet('game-ball', 'assets/images/ball03.png');
-        game.load.spritesheet('goal', 'assets/images/goal.png', 100, 100);
-        game.load.image('pillar', './assets/images/pillar.png');
+        game.load.spritesheet('goal', 'assets/images/goal3.png', 110, 110);
+        game.load.image('pillar', './assets/images/forcefield.png');
         game.load.image('deathOne', 'assets/images/deathOne.png');
 
     }
@@ -118,7 +118,7 @@ $('body').on('click', '#start-game', function() {
         text = game.add.text(game.world.centerX, game.world.centerY, "Packet Delivered...\naka..GOOAALLLL!!!!", { font: "30px Orbitron", fill: "blue", align: "center" });
         text.anchor.setTo(0.5, 0.5);
         text.visible = false;
-        playerScoreDisplay = game.add.text(387, 576, scoreTracker, { font: "45px Orbitron", fill: "#bbb" });
+        playerScoreDisplay = game.add.text(400, 576, scoreTracker, { font: "45px Orbitron", fill: "#bbb" });
         playerScoreDisplay.anchor.setTo(0.5, 0.5);
         //Iterates over each member of the stars group and stops them from leaving map.
 
@@ -473,10 +473,11 @@ $('body').on('click', '#start-game', function() {
             // longitude,latitude and currentTime pulled out
             var spaceStationLat = response.iss_position.latitude;
             var spaceStationLong = response.iss_position.longitude;
-            var currentTime = response.timestamp;
+            var currentTime = response.datetime;
+            var convertedTime = moment(currentTime).format("dddd, MMMM Do YYYY, h:mm:ss a");
             // longitude and latitude being appended to the space-station container
             $(".space-station").append("<header class='station-header'>The International Space Station Coordinates</header>");
-            $(".space-station").append("<p> At: " + currentTime + " Unix-time</p>");
+            $(".space-station").append("<p> At: " + convertedTime + "</p>");
             $(".space-station").append("<p>Latitude: " + spaceStationLat + " Longitude: " + spaceStationLong + "</p>");
         });
         var url1 = "http://api.open-notify.org/astros.json"
