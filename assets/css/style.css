@@ -38,6 +38,10 @@ p {
     font-family: 'Orbitron';
 }
 
+h2 {
+    display: none;
+}
+
 .header {
     font-family: 'Audiowide', cursive;
     color: #17206b;
@@ -45,6 +49,10 @@ p {
     text-shadow: 0 0 0.5em #51dfff, 0 0 0.5em #51dfff, 0 0 0.5em #51dfff;
     text-align: center;
     font-size: 25px;
+}
+
+.header-box {
+    text-align: center;
 }
 
 canvas {
@@ -73,4 +81,12 @@ canvas {
 
 .space-station header {
     font-weight: bold;
+}
+
+.reveal-content {
+    display: block;
+}
+
+#start-game {
+    text-align: center;
 }
