@@ -102,11 +102,11 @@ function create() {
     emitter.maxParticleScale = 1.5;
 
     // end game text
-    endGameMessage = game.add.text(game.world.centerX, game.world.centerY, "Incredible!\n Informational Reward\n Below!", { font: "65px Orbitron", fill: "blue", align: "center" });
+    endGameMessage = game.add.text(game.world.centerX, game.world.centerY, "Incredible!\n Informational Reward\n Below!", { font: "30px Orbitron", fill: "blue", align: "center" });
     endGameMessage.anchor.setTo(0.5, 0.5);
     endGameMessage.visible = false;
     // Goal Text
-    text = game.add.text(game.world.centerX, game.world.centerY, "Packet Delivered...\naka..GOOAALLLL!!!!", { font: "65px Orbitron", fill: "blue", align: "center" });
+    text = game.add.text(game.world.centerX, game.world.centerY, "Packet Delivered...\naka..GOOAALLLL!!!!", { font: "30px Orbitron", fill: "blue", align: "center" });
     text.anchor.setTo(0.5, 0.5);
     text.visible = false;
     playerScoreDisplay = game.add.text(387, 576, scoreTracker, { font: "45px Orbitron", fill: "#bbb" });
@@ -377,7 +377,7 @@ function scoredGoal(player, goal) {
         uprGoal.frame = 0;
         timerActive = true;
         // if number of goals scored is equal to the number runs this code else call the restart function in 5 seconds
-        if (scoreTracker === 3) {
+        if (scoreTracker === 2) {
             responsiveVoice.speak("Well done, scroll down for your informational reward", "UK English Female", { volume: 1 });
             getSpaceData();
             text.visible = false;
